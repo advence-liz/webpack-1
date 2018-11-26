@@ -72,7 +72,7 @@ describe("HotTestCases", () => {
 								),
 								enforce: "pre"
 							});
-							if (!options.target) options.target = "async-node";
+							if (!options.target) options.target = "node";
 							if (!options.plugins) options.plugins = [];
 							options.plugins.push(
 								new webpack.HotModuleReplacementPlugin(),
@@ -146,6 +146,9 @@ describe("HotTestCases", () => {
 								function _require(module) {
 									if (module.substr(0, 2) === "./") {
 										const p = path.join(outputDirectory, module);
+										if(module.endsWith(".json")) {
+											return JSON.parse(fs.readFileSync(p, "utf-8"));
+										} else {
 										const fn = vm.runInThisContext(
 											"(function(require, module, exports, __dirname, __filename, it, expect, NEXT, STATS) {" +
 												"global.expect = expect;" +
@@ -170,6 +173,7 @@ describe("HotTestCases", () => {
 											jsonStats
 										);
 										return m.exports;
+										}
 									} else return require(module);
 								}
 								_require("./bundle.js");
